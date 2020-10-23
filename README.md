@@ -1,6 +1,9 @@
 # CVPR2020 Pose-guided Visible Part Matching for Occluded Person ReID
 This is the pytorch implementation `on windows` of the CVPR2020 paper *"Pose-guided Visible Part Matching for Occluded Person ReID"*
 
+# Contact
+Email: nickhuang1996@126.com
+
 ## Modification
 1. I fixed the way to load the model weights, or you will have severe errors when model weights are loaded:  
 ```UnicodeDecodeError: 'utf-8' codec can't decode byte 0xbc in position 0: invalid start byte```
