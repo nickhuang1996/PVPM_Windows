@@ -173,6 +173,179 @@ sgd
 --workers
 0
 ```
+## Evaluation Results
+### market1501
+```
+** Arguments **
+adam_beta1: 0.9
+adam_beta2: 0.999
+app: image
+arch: pcb_p6
+base_lr_mult: 0.5
+batch_size: 128
+combineall: False
+cuhk03_classic_split: False
+cuhk03_labeled: False
+dist_metric: euclidean
+eval_freq: -1
+evaluate: True
+fixbase_epoch: 0
+gamma: 0.1
+gpu_devices: 0
+graph_matching: False
+height: 384
+label_smooth: False
+load_pose: False
+load_weights: D:/weights_results/PVPM/pretrained_models/Pretrain_PCB_model.pth.tar-60
+loss: softmax
+lr: 0.02
+lr_scheduler: multi_step
+margin: 0.3
+market1501_500k: False
+max_epoch: 60
+momentum: 0.9
+new_layers: ['classifier', 'em']
+no_pretrained: False
+normalize_feature: False
+num_att: 6
+num_instances: 4
+open_layers: ['classifier', 'fc']
+optim: sgd
+part_score: False
+pooling_method: avg
+print_freq: 20
+ranks: [1, 3, 5, 10, 20]
+reg_matching_score_epoch: 5
+rerank: False
+resume: 
+rmsprop_alpha: 0.99
+root: D:/datasets/ReID_dataset
+sample_method: evenly
+save_dir: D:/weights_results/PVPM/market_PCB
+seed: 1
+seq_len: 15
+sgd_dampening: 0
+sgd_nesterov: False
+sources: ['market1501']
+split_id: 0
+staged_lr: True
+start_epoch: 0
+start_eval: 60
+stepsize: [25, 50]
+targets: ['market1501']
+train_sampler: RandomSampler
+transforms: ['random_flip']
+use_att_loss: False
+use_avai_gpus: False
+use_cpu: False
+use_metric_cuhk03: False
+visrank: False
+visrank_topk: 20
+weight_decay: 0.0005
+weight_t: 1
+weight_x: 0
+width: 192
+workers: 0
+
+
+Collecting env info ...
+** System info **
+PyTorch version: 1.4.0
+Is debug build: No
+CUDA used to build PyTorch: 10.1
+
+OS: Microsoft Windows 10 企业版
+GCC version: Could not collect
+CMake version: Could not collect
+
+Python version: 3.7
+Is CUDA available: Yes
+CUDA runtime version: 10.1.105
+GPU models and configuration: Could not collect
+Nvidia driver version: Could not collect
+cuDNN version: Could not collect
+
+Versions of relevant libraries:
+[pip] numpy==1.16.2
+[pip] numpydoc==0.8.0
+[pip] torch==1.4.0
+[pip] torchreid==0.8.1
+[pip] torchstat==0.0.7
+[pip] torchsummary==1.5.1
+[pip] torchvision==0.4.2
+[conda] blas                      1.0                         mkl  
+[conda] mkl                       2019.3                      203  
+[conda] mkl-service               1.1.2            py37hb782905_5  
+[conda] mkl_fft                   1.0.10           py37h14836fe_0  
+[conda] mkl_random                1.0.2            py37h343c172_0  
+[conda] torch                     1.4.0                    pypi_0    pypi
+[conda] torchreid                 0.8.1                     dev_0    <develop>
+[conda] torchstat                 0.0.7                    pypi_0    pypi
+[conda] torchsummary              1.5.1                    pypi_0    pypi
+[conda] torchvision               0.4.2                    pypi_0    pypi
+        Pillow (5.4.1)
+
+Building train transforms ...
++ resize to 384x192
++ random flip
++ to torch tensor of range [0, 1]
++ normalization (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+Building test transforms ...
++ resize to 384x192
++ to torch tensor of range [0, 1]
++ normalization (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+=> Loading train (source) dataset
+=> Loaded Market1501
+  ----------------------------------------
+  subset   | # ids | # images | # cameras
+  ----------------------------------------
+  train    |   751 |    12936 |         6
+  query    |   750 |     3368 |         6
+  gallery  |   751 |    15913 |         6
+  ----------------------------------------
+=> Loading test (target) dataset
+=> Loaded Market1501
+  ----------------------------------------
+  subset   | # ids | # images | # cameras
+  ----------------------------------------
+  train    |   751 |    12936 |         6
+  query    |   750 |     3368 |         6
+  gallery  |   751 |    15913 |         6
+  ----------------------------------------
+
+
+  **************** Summary ****************
+  train            : ['market1501']
+  # train datasets : 1
+  # train ids      : 751
+  # train images   : 12936
+  # train cameras  : 6
+  test             : ['market1501']
+  *****************************************
+
+
+Building model: pcb_p6
+Successfully loaded pretrained weights from "D:/weights_results/PVPM/pretrained_models/Pretrain_PCB_model.pth.tar-60"
+Building softmax-engine for image-reid
+##### Evaluating market1501 (source) #####
+Extracting features from query set ...
+Done, obtained 3368-by-12288 matrix
+Extracting features from gallery set ...
+Done, obtained 15913-by-12288 matrix
+Speed: 0.0929 sec/batch
+Computing distance matrix with metric=euclidean ...
+Computing CMC and mAP ...
+** Results **
+mAP: 73.4%
+CMC curve
+Rank-1  : 90.6%
+Rank-3  : 95.0%
+Rank-5  : 96.6%
+Rank-10 : 97.6%
+Rank-20 : 98.5%
+
+```
+
 
 ## Dependencies
 -Python2.7 or Python>=3.6\
