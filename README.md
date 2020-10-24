@@ -200,10 +200,10 @@ Then you can `python scripts/main.py`
 # Evaluation Results
 - Pretrain_PCB_model.pth.tar-60
     
-    [Market1501 to Market1501](###Market1501 to Market1501)
+    [Market1501 to Market1501](#market1501-to-market1501)
 - PVPM_model.pth.tar-30
     
-    [Market1501 to Occlusion_reid and partial_reid](###Market1501 to Occlusion_reid and partial_reid)
+    [Market1501 to Occlusion_reid and partial_reid](#market1501-to-occlusion_reid-and-partial_reid)
     
 ## Pretrain_PCB_model.pth.tar-60
 ### Market1501 to Market1501
@@ -426,7 +426,7 @@ Rank-20 : 98.5%
 
 ```
 ## PVPM_model.pth.tar-30
-### Market1501 to Occlusion_reid and partial_reid
+### Market1501 to Occlusion_reid and Partial_reid
 ```
 --evaluate
 --start-eval
