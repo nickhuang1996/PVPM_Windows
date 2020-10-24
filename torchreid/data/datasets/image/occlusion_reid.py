@@ -25,8 +25,8 @@ class Occluded_REID(ImageDataset):
             self.data_dir = data_dir
         else:
             warnings.warn('The current data structure is deprecated.')
-        self.query_dir=osp.join(self.data_dir, 'occluded_body_images')
-        self.gallery_dir=osp.join(self.data_dir, 'whole_body_images')
+        self.query_dir=osp.join(self.data_dir, 'occluded_body_images').replace('\\', '/')
+        self.gallery_dir=osp.join(self.data_dir, 'whole_body_images').replace('\\', '/')
 
         train = []
         query = self.process_dir(self.query_dir, relabel=False)
@@ -43,21 +43,25 @@ class Occluded_REID(ImageDataset):
 
 
     def process_dir(self, dir_path, relabel=False, is_query=True):
-        img_paths = glob.glob(osp.join(dir_path,'*','*.jpg'))
+        # try:
+        #     temp = osp.join(dir_path,'*','*.jpg')
+        #     img_paths = glob.glob(osp.join(dir_path,'*.jpg'))
+        # temp = osp.join(dir_path,'*', '*.tif')
+        img_paths = glob.glob(osp.join(dir_path,'*', '*.tif'))
         if is_query:
             camid = 0
         else:
             camid = 1
         pid_container = set()
         for img_path in img_paths:
-            img_name = img_path.split('/')[-1]
+            img_name = img_path.replace('\\', '/').split('/')[-1]
             pid = int(img_name.split('_')[0])
             pid_container.add(pid)
         pid2label = {pid:label for label, pid in enumerate(pid_container)}
 
         data = []
         for img_path in img_paths:
-            img_name = img_path.split('/')[-1]
+            img_name = img_path.replace('\\', '/').split('/')[-1]
             pid = int(img_name.split('_')[0])
             if relabel:
                 pid = pid2label[pid]
@@ -69,7 +73,7 @@ class Occluded_REID(ImageDataset):
         img = read_image(img_path)
 
         if self.load_pose:
-            img_name = '.'.join(img_path.split('/')[-1].split('.')[:-1])
+            img_name = '.'.join(img_path.replace('\\', '/').split('/')[-1].split('.')[:-1])
             pose_pic_name = img_name + '_pose_heatmaps.png'
             pose_pic_path = os.path.join(self.pose_dir, pose_pic_name)
             pose = cv2.imread(pose_pic_path, cv2.IMREAD_GRAYSCALE)

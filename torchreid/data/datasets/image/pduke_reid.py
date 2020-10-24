@@ -47,13 +47,13 @@ class P_Dukereid(ImageDataset):
         camid=1
         pid_container = set()
         for img_path in img_paths:
-            img_name = img_path.split('/')[-1]
+            img_name = img_path.replace('\\', '/').split('/')[-1]
             pid = int(img_name.split('_')[0])
             pid_container.add(pid)
         pid2label = {pid:label for label, pid in enumerate(pid_container)}
         data = []
         for img_path in img_paths:
-            img_name = img_path.split('/')[-1]
+            img_name = img_path.replace('\\', '/').split('/')[-1]
             pid = int(img_name.split('_')[0])
             if relabel:
                 pid = pid2label[pid]
@@ -61,7 +61,7 @@ class P_Dukereid(ImageDataset):
         img_paths = glob.glob(osp.join(dir_path,'occluded_body_images','*','*.jpg'))
         camid=0
         for img_path in img_paths:
-            img_name = img_path.split('/')[-1]
+            img_name = img_path.replace('\\', '/').split('/')[-1]
             pid = int(img_name.split('_')[0])
             if relabel:
                 pid = pid2label[pid]
@@ -76,14 +76,14 @@ class P_Dukereid(ImageDataset):
             camid = 1
         pid_container = set()
         for img_path in img_paths:
-            img_name = img_path.split('/')[-1]
+            img_name = img_path.replace('\\', '/').split('/')[-1]
             pid = int(img_name.split('_')[0])
             pid_container.add(pid)
         pid2label = {pid:label for label, pid in enumerate(pid_container)}
 
         data = []
         for img_path in img_paths:
-            img_name = img_path.split('/')[-1]
+            img_name = img_path.replace('\\', '/').split('/')[-1]
             pid = int(img_name.split('_')[0])
             if relabel:
                 pid = pid2label[pid]
@@ -95,7 +95,7 @@ class P_Dukereid(ImageDataset):
         img = read_image(img_path)
 
         if self.load_pose:
-            img_name = '.'.join(img_path.split('/')[-1].split('.')[:-1])
+            img_name = '.'.join(img_path.replace('\\', '/').split('/')[-1].split('.')[:-1])
             pose_pic_name = img_name + '_pose_heatmaps.png'
             if 'whole_body' in img_path:
                 pose_pic_path = os.path.join(self.pose_dir,'whole_body_pose', pose_pic_name)

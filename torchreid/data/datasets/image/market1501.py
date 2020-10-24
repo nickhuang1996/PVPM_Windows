@@ -116,7 +116,7 @@ class Market1501(ImageDataset):
         img = read_image(img_path)
 
         if self.load_pose:
-            img_name = '.'.join(img_path.split('/')[-1].split('.')[:-1])
+            img_name = '.'.join(img_path.replace('\\', '/').split('/')[-1].split('.')[:-1])
             pose_pic_name = img_name + '_pose_heatmaps.png'
             pose_pic_path = os.path.join(self.pose_dir, pose_pic_name)
             pose = cv2.imread(pose_pic_path, cv2.IMREAD_GRAYSCALE)
@@ -235,7 +235,7 @@ class Market1501_simu_occluded(ImageDataset):
         img = read_image(img_path)
 
         if self.load_pose:
-            img_name = '.'.join(img_path.split('/')[-1].split('.')[:-1])
+            img_name = '.'.join(img_path.replace('\\', '/').split('/')[-1].split('.')[:-1])
             pose_pic_name = img_name + '_pose_heatmaps.png'
             if ('simulate' in img_path):
                 pose_pic_path = os.path.join(self.occluded_pose_dir, pose_pic_name)
