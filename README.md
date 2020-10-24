@@ -120,12 +120,93 @@ Finished processing dependencies for torchreid==0.8.1
 
 ``` 
 
-### Test
+## Dependencies
+-Python2.7 or Python>=3.6\
+-Pytorch>=1.0\
+-Numpy
+
+## Related Project
+Our code is based on [deep-person-reid](https://github.com/KaiyangZhou/deep-person-reid). We adopt [openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) to extract pose landmarks and part affinity fields.
+
+## Dataset Preparation
+Download the raw datasets [Occluded-REID, P-DukeMTMC-reID](https://github.com/tinajia2012/ICME2018_Occluded-Person-Reidentification_datasets), and [Partial-Reid](https://pan.baidu.com/s/1VhPUVJOLvkhgbJiUoEnJWg) (code:zdl8) which is released by [Partial Person Re-identification](https://www.cv-foundation.org/openaccess/content_iccv_2015/html/Zheng_Partial_Person_Re-Identification_ICCV_2015_paper.html). Instructions regarding how to prepare [Market1501](https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/Zheng_Scalable_Person_Re-Identification_ICCV_2015_paper.pdf) datasets can be found [here](https://kaiyangzhou.github.io/deep-person-reid/datasets.html). And then place them under the directory like:
+
+```
+PVPM_experiments/data/
+├── ICME2018_Occluded-Person-Reidentification_datasets
+│   ├── Occluded_Duke
+│   └── Occluded_REID
+├── Market-1501-v15.09.15
+└── Partial-REID_Dataset
+```
+
+## Pose extraction
+Install openopse as described [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose).\
+Change path to your own dataset root and run sh files in /scripts:
+```
+sh openpose_occluded_reid.sh
+sh openpose_market.sh
+``` 
+Extracted Pose information can be found [here](https://pan.baidu.com/s/1Majze1iFo7FytREijmQO5A)(code:iwlz)
+
+## To Train PCB baseline
+
+``` 
+python scripts/main.py --root PATH_TO_DATAROOT \
+ -s market1501 -t market1501\
+ --save-dir PATH_TO_EXPERIMENT_FOLDER/market_PCB\
+ -a pcb_p6 --gpu-devices 0 --fixbase-epoch 0\
+ --open-layers classifier fc\
+ --new-layers classifier em\
+ --transforms random_flip\
+ --optim sgd --lr 0.02\
+ --stepsize 25 50\
+ --staged-lr --height 384 --width 192\
+ --batch-size 32 --base-lr-mult 0.5
+```
+## To train PVPM
+```
+python scripts/main.py --load-pose --root PATH_TO_DATAROOT
+ -s market1501\
+ -t occlusion_reid p_duke partial_reid\
+ --save-dir PATH_TO_EXPERIMENT_FOLDER/PVPM\
+ -a pose_p6s --gpu-devices 0\
+ --fixbase-epoch 30\
+ --open-layers pose_subnet\
+ --new-layers pose_subnet\
+ --transforms random_flip\
+ --optim sgd --lr 0.02\
+ --stepsize 15 25 --staged-lr\
+ --height 384 --width 128\
+ --batch-size 32\
+ --start-eval 20\
+ --eval-freq 10\
+ --load-weights PATH_TO_EXPERIMENT_FOLDER/market_PCB/model.pth.tar-60\
+ --train-sampler RandomIdentitySampler\
+ --reg-matching-score-epoch 0\
+ --graph-matching
+ --max-epoch 30
+ --part-score
+```
+Trained PCB model and PVPM model can be found [here](https://pan.baidu.com/s/16lr8m-wv-XOXACqIthC8lw)(code:64zy)
+
+## EXTRA
+## To test
 - Set `--workers` to 0, or `pin_memory error` will be occured.
 - `-evaluate` must be here.
 - `--load_weights` should be  path of download models.
 
 Then you can `python scripts/main.py`
+# Evaluation Results
+- Pretrain_PCB_model.pth.tar-60
+    
+    [Market1501 to Market1501](#Market1501 to Market1501)
+- PVPM_model.pth.tar-30
+    
+    [Market1501 to Occlusion_reid and partial_reid](#Market1501 to Occlusion_reid and partial_reid)
+    
+## Pretrain_PCB_model.pth.tar-60
+### Market1501 to Market1501
 ```
 --root
 PATH_TO_DATAROOT
@@ -173,8 +254,7 @@ sgd
 --workers
 0
 ```
-## Evaluation Results
-### market1501
+### Results
 ```
 ** Arguments **
 adam_beta1: 0.9
@@ -345,77 +425,259 @@ Rank-10 : 97.6%
 Rank-20 : 98.5%
 
 ```
+## PVPM_model.pth.tar-30
+### Market1501 to Occlusion_reid and partial_reid
+```
+--evaluate
+--start-eval
+30
+--load-pose
+--root
+D:/datasets/ReID_dataset
+-s
+market1501
+-t
+occlusion_reid
+partial_reid
+--save-dir
+D:/weights_results/PVPM/occlusion_reid_and_partial_reid
+-a
+pose_p6s
+--gpu-devices
+0
+--fixbase-epoch
+30
+--open-layers
+pose_subnet
+--new-layers
+pose_subnet
+--transforms
+random_flip
+--optim
+sgd
+--lr
+0.02
+--stepsize
+15
+25
+--staged-lr
+--height
+384
+--width
+128
+--batch-size
+128
+--start-eval
+20
+--eval-freq
+10
+--load-weights
+D:/weights_results/PVPM/pretrained_models/PVPM_model.pth.tar-30
+--train-sampler
+RandomIdentitySampler
+--reg-matching-score-epoch
+0
+--graph-matching
+--max-epoch
+30
+--part-score
+--workers
+0
+```
+### Results
+```
+** Arguments **
+adam_beta1: 0.9
+adam_beta2: 0.999
+app: image
+arch: pose_p6s
+base_lr_mult: 0.1
+batch_size: 128
+combineall: False
+cuhk03_classic_split: False
+cuhk03_labeled: False
+dist_metric: euclidean
+eval_freq: 10
+evaluate: True
+fixbase_epoch: 30
+gamma: 0.1
+gpu_devices: 0
+graph_matching: True
+height: 384
+label_smooth: False
+load_pose: True
+load_weights: D:/weights_results/PVPM/pretrained_models/PVPM_model.pth.tar-30
+loss: softmax
+lr: 0.02
+lr_scheduler: multi_step
+margin: 0.3
+market1501_500k: False
+max_epoch: 30
+momentum: 0.9
+new_layers: ['pose_subnet']
+no_pretrained: False
+normalize_feature: False
+num_att: 6
+num_instances: 4
+open_layers: ['pose_subnet']
+optim: sgd
+part_score: True
+pooling_method: avg
+print_freq: 20
+ranks: [1, 3, 5, 10, 20]
+reg_matching_score_epoch: 0
+rerank: False
+resume: 
+rmsprop_alpha: 0.99
+root: D:/datasets/ReID_dataset
+sample_method: evenly
+save_dir: D:/weights_results/PVPM
+seed: 1
+seq_len: 15
+sgd_dampening: 0
+sgd_nesterov: False
+sources: ['market1501']
+split_id: 0
+staged_lr: True
+start_epoch: 0
+start_eval: 20
+stepsize: [15, 25]
+targets: ['occlusion_reid', 'partial_reid']
+train_sampler: RandomIdentitySampler
+transforms: ['random_flip']
+use_att_loss: False
+use_avai_gpus: False
+use_cpu: False
+use_metric_cuhk03: False
+visrank: False
+visrank_topk: 20
+weight_decay: 0.0005
+weight_t: 1
+weight_x: 0
+width: 128
+workers: 0
 
 
-## Dependencies
--Python2.7 or Python>=3.6\
--Pytorch>=1.0\
--Numpy
+Collecting env info ...
+** System info **
+PyTorch version: 1.4.0
+Is debug build: No
+CUDA used to build PyTorch: 10.1
 
-## Related Project
-Our code is based on [deep-person-reid](https://github.com/KaiyangZhou/deep-person-reid). We adopt [openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) to extract pose landmarks and part affinity fields.
+OS: Microsoft Windows 10 企业版
+GCC version: Could not collect
+CMake version: Could not collect
 
-## Dataset Preparation
-Download the raw datasets [Occluded-REID, P-DukeMTMC-reID](https://github.com/tinajia2012/ICME2018_Occluded-Person-Reidentification_datasets), and [Partial-Reid](https://pan.baidu.com/s/1VhPUVJOLvkhgbJiUoEnJWg) (code:zdl8) which is released by [Partial Person Re-identification](https://www.cv-foundation.org/openaccess/content_iccv_2015/html/Zheng_Partial_Person_Re-Identification_ICCV_2015_paper.html). Instructions regarding how to prepare [Market1501](https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/Zheng_Scalable_Person_Re-Identification_ICCV_2015_paper.pdf) datasets can be found [here](https://kaiyangzhou.github.io/deep-person-reid/datasets.html). And then place them under the directory like:
+Python version: 3.7
+Is CUDA available: Yes
+CUDA runtime version: 10.1.105
+GPU models and configuration: Could not collect
+Nvidia driver version: Could not collect
+cuDNN version: Could not collect
+
+Versions of relevant libraries:
+[pip] numpy==1.16.2
+[pip] numpydoc==0.8.0
+[pip] torch==1.4.0
+[pip] torchreid==0.8.1
+[pip] torchstat==0.0.7
+[pip] torchsummary==1.5.1
+[pip] torchvision==0.4.2
+[conda] blas                      1.0                         mkl  
+[conda] mkl                       2019.3                      203  
+[conda] mkl-service               1.1.2            py37hb782905_5  
+[conda] mkl_fft                   1.0.10           py37h14836fe_0  
+[conda] mkl_random                1.0.2            py37h343c172_0  
+[conda] torch                     1.4.0                    pypi_0    pypi
+[conda] torchstat                 0.0.7                    pypi_0    pypi
+[conda] torchsummary              1.5.1                    pypi_0    pypi
+[conda] torchvision               0.4.2                    pypi_0    pypi
+        Pillow (5.4.1)
+
+Building train transforms ...
++ resize to 384x128
++ random flip
++ to torch tensor of range [0, 1]
++ normalization (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+Building test transforms ...
++ resize to 384x128
++ to torch tensor of range [0, 1]
++ normalization (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+=> Loading train (source) dataset
+=> Loaded Market1501
+  ----------------------------------------
+  subset   | # ids | # images | # cameras
+  ----------------------------------------
+  train    |   751 |    12936 |         6
+  query    |   750 |     3368 |         6
+  gallery  |   751 |    15913 |         6
+  ----------------------------------------
+=> Loading test (target) dataset
+=> Loaded Occluded_REID
+  ----------------------------------------
+  subset   | # ids | # images | # cameras
+  ----------------------------------------
+  train    |     0 |        0 |         0
+  query    |   200 |     1000 |         1
+  gallery  |   200 |     1000 |         1
+  ----------------------------------------
+=> Loaded Paritial_REID
+  ----------------------------------------
+  subset   | # ids | # images | # cameras
+  ----------------------------------------
+  train    |     0 |        0 |         0
+  query    |    60 |      300 |         1
+  gallery  |    60 |      300 |         1
+  ----------------------------------------
+
+
+  **************** Summary ****************
+  train            : ['market1501']
+  # train datasets : 1
+  # train ids      : 751
+  # train images   : 12936
+  # train cameras  : 6
+  test             : ['occlusion_reid', 'partial_reid']
+  *****************************************
+
+
+Building model: pose_p6s
+Successfully loaded pretrained weights from "D:/weights_results/PVPM/pretrained_models/PVPM_model.pth.tar-30"
+Building softmax-engine for image-reid
+##### Evaluating occlusion_reid (target) #####
+Extracting features from query set ...
+Done, obtained 1000-by-2048 matrix
+Extracting features from gallery set ...
+Done, obtained 1000-by-2048 matrix
+Speed: 1.1385 sec/batch
+Computing distance matrix with metric=euclidean ...
+Computing CMC and mAP ...
+** Results **
+mAP: 60.2%
+CMC curve
+Rank-1  : 67.2%
+Rank-3  : 77.6%
+Rank-5  : 82.4%
+Rank-10 : 88.3%
+Rank-20 : 92.3%
+##### Evaluating partial_reid (target) #####
+Extracting features from query set ...
+Done, obtained 300-by-2048 matrix
+Extracting features from gallery set ...
+Done, obtained 300-by-2048 matrix
+Speed: 0.9049 sec/batch
+Computing distance matrix with metric=euclidean ...
+Computing CMC and mAP ...
+** Results **
+mAP: 71.4%
+CMC curve
+Rank-1  : 75.3%
+Rank-3  : 85.0%
+Rank-5  : 88.7%
+Rank-10 : 92.3%
+Rank-20 : 96.3%
 
 ```
-PVPM_experiments/data/
-├── ICME2018_Occluded-Person-Reidentification_datasets
-│   ├── Occluded_Duke
-│   └── Occluded_REID
-├── Market-1501-v15.09.15
-└── Partial-REID_Dataset
-```
-
-## Pose extraction
-Install openopse as described [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose).\
-Change path to your own dataset root and run sh files in /scripts:
-```
-sh openpose_occluded_reid.sh
-sh openpose_market.sh
-``` 
-Extracted Pose information can be found [here](https://pan.baidu.com/s/1Majze1iFo7FytREijmQO5A)(code:iwlz)
-
-## To Train PCB baseline
-
-``` 
-python scripts/main.py --root PATH_TO_DATAROOT \
- -s market1501 -t market1501\
- --save-dir PATH_TO_EXPERIMENT_FOLDER/market_PCB\
- -a pcb_p6 --gpu-devices 0 --fixbase-epoch 0\
- --open-layers classifier fc\
- --new-layers classifier em\
- --transforms random_flip\
- --optim sgd --lr 0.02\
- --stepsize 25 50\
- --staged-lr --height 384 --width 192\
- --batch-size 32 --base-lr-mult 0.5
-```
-## To train PVPM
-```
-python scripts/main.py --load-pose --root PATH_TO_DATAROOT
- -s market1501\
- -t occlusion_reid p_duke partial_reid\
- --save-dir PATH_TO_EXPERIMENT_FOLDER/PVPM\
- -a pose_p6s --gpu-devices 0\
- --fixbase-epoch 30\
- --open-layers pose_subnet\
- --new-layers pose_subnet\
- --transforms random_flip\
- --optim sgd --lr 0.02\
- --stepsize 15 25 --staged-lr\
- --height 384 --width 128\
- --batch-size 32\
- --start-eval 20\
- --eval-freq 10\
- --load-weights PATH_TO_EXPERIMENT_FOLDER/market_PCB/model.pth.tar-60\
- --train-sampler RandomIdentitySampler\
- --reg-matching-score-epoch 0\
- --graph-matching
- --max-epoch 30
- --part-score
-```
-Trained PCB model and PVPM model can be found [here](https://pan.baidu.com/s/16lr8m-wv-XOXACqIthC8lw)(code:64zy)
 
 # Citation
 If you find this code useful to your research, please cite the following paper:
